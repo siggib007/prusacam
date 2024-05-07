@@ -37,6 +37,22 @@ iTimeOut = 180  # Max time in seconds to wait for network response
 iMinQuiet = 2  # Minimum time in seconds between API calls
 
 # sub defs
+def isInt(CheckValue):
+    """
+    function to safely check if a value can be interpreded as an int
+    Parameter:
+      Value: A object to be evaluated
+    Returns:
+      Boolean indicating if the object is an integer or not.
+    """
+    if isinstance(CheckValue, (float, int, str)):
+        try:
+            fTemp = int(CheckValue)
+        except ValueError:
+            fTemp = "NULL"
+    else:
+        fTemp = "NULL"
+    return fTemp != "NULL"
 
 def FetchEnv(strVarName):
   """
@@ -54,9 +70,6 @@ def FetchEnv(strVarName):
     return ""
 
 def takePic(strFilePath):
-  picam2 = Picamera2()
-  camera_config = picam2.create_still_configuration()
-  picam2.configure(camera_config)
   picam2.start()
   time.sleep(2)
   picam2.capture_file(strFilePath)
@@ -78,6 +91,7 @@ def submitPic(strFilePath,strToken,strFingerPrint):
 
 
 def main():
+  global picam2
 
   strScriptName = os.path.basename(sys.argv[0])
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
@@ -106,8 +120,23 @@ def main():
     print("No filepath, can't work without it.")
     sys.exit(9)
 
-  takePic(strFilePath)
-  print(submitPic(strFilePath,strToken,strFingerPrint))
+  iInt = FetchEnv("INTERVAL")
+  if isInt(iInt):
+    print("Interval specification of {} is valid".format(iInt))
+    iInt=int(iInt)
+  else:
+    print("Invalid interval specification:'{}' defaulting to 5".format(iInt))
+    iInt = 5
+
+  picam2 = Picamera2()
+  camera_config = picam2.create_still_configuration()
+  picam2.configure(camera_config)
+
+
+  while True:
+    time.sleep(iInt)
+    takePic(strFilePath)
+    print(submitPic(strFilePath,strToken,strFingerPrint))
 
 if __name__ == '__main__':
   main()
