@@ -96,12 +96,12 @@ def main():
     print("No API token, can't post without it.")
     sys.exit(9)
 
-  strFingerPrint = FetchEnv("FingerPrint")
+  strFingerPrint = FetchEnv("FP")
   if strFingerPrint == "":
     print("No fingerprint, can't post without it.")
     sys.exit(9)
 
-  strFilePath = FetchEnv("FilePath")
+  strFilePath = FetchEnv("FILE")
   if strFilePath == "":
     print("No filepath, can't work without it.")
     sys.exit(9)
