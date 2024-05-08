@@ -3,7 +3,7 @@ Script that takes pictures using picamera2
 then posts them to Prusa connect
 
 Author Siggi Bjarnason 07 may 2024
-Copyright 2023 Siggi Bjarnason
+Copyright 2024 Siggi Bjarnason
 
 Following packages need to be installed
 pip install requests
@@ -93,34 +93,32 @@ def submitPic(strFilePath,strToken,strFingerPrint):
 def main():
   global picam2
 
-  strScriptName = os.path.basename(sys.argv[0])
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
-  strScriptHost = platform.node().upper()
   strRealPath = os.path.realpath(sys.argv[0])
 
-  print("This is a script to test if a URL responds via proxy. "
+  print("This is a script to post pictures to prusa connect. "
           "This is running under Python Version {}".format(strVersion))
   print("Running from: {}".format(strRealPath))
   dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
   print("The time now is {}".format(dtNow))
 
   # fetching secrets in environment
-  strToken = FetchEnv("APIKEY")
+  strToken = FetchEnv("PRUSATOKEN")
   if strToken == "":
     print("No API token, can't post without it.")
     sys.exit(9)
 
-  strFingerPrint = FetchEnv("FP")
+  strFingerPrint = FetchEnv("CAMFP")
   if strFingerPrint == "":
     print("No fingerprint, can't post without it.")
     sys.exit(9)
 
-  strFilePath = FetchEnv("FILE")
+  strFilePath = FetchEnv("CAMPIC")
   if strFilePath == "":
     print("No filepath, can't work without it.")
     sys.exit(9)
 
-  iInt = FetchEnv("INTERVAL")
+  iInt = FetchEnv("CAMINT")
   if isInt(iInt):
     print("Interval specification of {} is valid".format(iInt))
     iInt=int(iInt)
@@ -134,9 +132,9 @@ def main():
 
 
   while True:
-    time.sleep(iInt)
     takePic(strFilePath)
     print(submitPic(strFilePath,strToken,strFingerPrint))
+    time.sleep(iInt)
 
 if __name__ == '__main__':
   main()
