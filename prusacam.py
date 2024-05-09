@@ -126,6 +126,12 @@ def main():
     print("Invalid interval specification:'{}' defaulting to 5".format(iInt))
     iInt = 5
 
+  strQuiet = FetchEnv("SILENT")
+  if strQuiet.lower() == "true" or strQuiet.lower() == "yes":
+     bQuiet = True
+  else:
+     bQuiet = False
+
   picam2 = Picamera2()
   camera_config = picam2.create_still_configuration()
   picam2.configure(camera_config)
@@ -133,7 +139,9 @@ def main():
 
   while True:
     takePic(strFilePath)
-    print(submitPic(strFilePath,strToken,strFingerPrint))
+    strResponse = submitPic(strFilePath,strToken,strFingerPrint)
+    if not bQuiet:
+       print("picture posted with a response of {}".format(strResponse))
     time.sleep(iInt)
 
 if __name__ == '__main__':

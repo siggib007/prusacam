@@ -66,13 +66,13 @@ def main():
   strScriptName = os.path.basename(sys.argv[0])
   iLoc = strScriptName.rfind(".")
   strFilePath = strBaseDir + strScriptName[:iLoc] + ISO + ".CSV"
-
-  print("This is a script to raspberrypi cpu stats. "
-          "This is running under Python Version {}".format(strVersion))
-  print("Running from: {}".format(strRealPath))
-  dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-  print("The time now is {}".format(dtNow))
-  print("Output written to {}".format(strFilePath))
+  if not objArgs.silent:
+    print("This is a script to raspberrypi cpu stats. "
+            "This is running under Python Version {}".format(strVersion))
+    print("Running from: {}".format(strRealPath))
+    dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
+    print("The time now is {}".format(dtNow))
+    print("Output written to {}".format(strFilePath))
 
   objFile = open(strFilePath,"a+", encoding="utf8")
   objFile.write("Timestamp,Temperature (°C),Clock Speed (MHz),Throttled\n")
