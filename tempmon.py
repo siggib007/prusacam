@@ -91,6 +91,7 @@ def main():
     string = "{},{},{},{}\n".format(strCurTime,temp,clock,throttled)
     print(string, end="")
     objFile.write(string)
+    objFile.flush()
     time.sleep(iInt)
 
 if __name__ == "__main__":
