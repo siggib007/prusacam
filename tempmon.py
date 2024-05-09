@@ -42,15 +42,15 @@ def isInt(CheckValue):
 
 def main():
 
-  parser = argparse.ArgumentParser(description='Raspberry Pi Monitor')
-  parser.add_argument('--silent', dest='silent',
+  objParser = argparse.ArgumentParser(description='Raspberry Pi Monitor')
+  objParser.add_argument('--silent', dest='silent',
                       action='store_true', help='only output to file, not to screen')
-  parser.add_argument('--sleep_time', dest='sleep_time', type=int,
-                      help='Number of seconds to sleep inbetween checkins, default is 60')
+  objParser.add_argument('--sleep', dest='sleep_time', type=int,
+                      help='Number of seconds to sleep inbetween checks, default is 60')
 
-  args = parser.parse_args()
-  if args.sleep_time is not None:
-    iSleepSec = args.sleep_time
+  objArgs = objParser.parse_args()
+  if objArgs.sleep_time is not None:
+    iSleepSec = objArgs.sleep_time
   else:
      iSleepSec = 60
 
@@ -85,11 +85,11 @@ def main():
     bThrottled = objvcgm.get_throttled()["breakdown"]["2"]
 
     strOut = "{},{},{},{}\n".format(strCurTime,fTempiture,iClockSpeed,bThrottled)
-    if not args.silent:
+    if not objArgs.silent:
       print(strOut, end="")
     objFile.write(strOut)
     objFile.flush()
-    if args.silent:
+    if objArgs.silent:
       time.sleep(iSleepSec)
     else:
       strResp = timed_input("Sleeping for {} seconds, enter q to exit ...".format(iSleepSec),iSleepSec)
