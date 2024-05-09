@@ -14,6 +14,14 @@ import sys
 import os
 import time
 from vcgencmd import Vcgencmd
+import argparse
+import inputimeout
+
+def timed_input(prompt, timeout):
+    try:
+        return inputimeout.inputimeout(prompt=prompt, timeout=timeout)
+    except inputimeout.TimeoutOccurred:
+        return None
 
 def isInt(CheckValue):
     """
@@ -32,22 +40,19 @@ def isInt(CheckValue):
         fTemp = "NULL"
     return fTemp != "NULL"
 
-def FetchEnv(strVarName):
-  """
-  Function that fetches the specified content of specified environment variable,
-  converting nonetype to empty string.
-  Parameters:
-    strVarName: The name of the environment variable to be fetched
-  Returns:
-    The content of the environment or empty string
-  """
-
-  if os.getenv(strVarName) != "" and os.getenv(strVarName) is not None:
-    return os.getenv(strVarName)
-  else:
-    return ""
-
 def main():
+
+  parser = argparse.ArgumentParser(description='Raspberry Pi Monitor')
+  parser.add_argument('--silent', dest='silent',
+                      action='store_true', help='only output to file, not to screen')
+  parser.add_argument('--sleep_time', dest='sleep_time', type=int,
+                      help='Number of seconds to sleep inbetween checkins, default is 60')
+
+  args = parser.parse_args()
+  if args.sleep_time is not None:
+    iSleepSec = args.sleep_time
+  else:
+     iSleepSec = 60
 
   ISO = time.strftime("-%Y-%m-%d-%H-%M-%S")
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
@@ -62,7 +67,6 @@ def main():
   iLoc = strScriptName.rfind(".")
   strFilePath = strBaseDir + strScriptName[:iLoc] + ISO + ".CSV"
 
-
   print("This is a script to raspberrypi cpu stats. "
           "This is running under Python Version {}".format(strVersion))
   print("Running from: {}".format(strRealPath))
@@ -70,29 +74,29 @@ def main():
   print("The time now is {}".format(dtNow))
   print("Output written to {}".format(strFilePath))
 
-  # fetching secrets in environment
-  iInt = FetchEnv("MEASUREINT")
-  if isInt(iInt):
-    print("Interval specification of {} is valid".format(iInt))
-    iInt=int(iInt)
-  else:
-    print("Invalid interval specification:'{}' defaulting to 60".format(iInt))
-    iInt = 60
-
   objFile = open(strFilePath,"a+", encoding="utf8")
   objFile.write("Timestamp,Temperature (°C),Clock Speed (MHz),Throttled\n")
   objvcgm = Vcgencmd()
-  while True:
+  bContinue = True
+  while bContinue:
     strCurTime = time.strftime("%Y-%m-%d-%H-%M-%S")
-    temp = objvcgm.measure_temp()
-    clock = int(objvcgm.measure_clock("arm")/1e6)
-    throttled = objvcgm.get_throttled()["breakdown"]["2"]
+    fTempiture = objvcgm.measure_temp()
+    iClockSpeed = int(objvcgm.measure_clock("arm")/1e6)
+    bThrottled = objvcgm.get_throttled()["breakdown"]["2"]
 
-    string = "{},{},{},{}\n".format(strCurTime,temp,clock,throttled)
-    print(string, end="")
-    objFile.write(string)
+    strOut = "{},{},{},{}\n".format(strCurTime,fTempiture,iClockSpeed,bThrottled)
+    if not args.silent:
+      print(strOut, end="")
+    objFile.write(strOut)
     objFile.flush()
-    time.sleep(iInt)
+    if args.silent:
+      time.sleep(iSleepSec)
+    else:
+      strResp = timed_input("Sleeping for {} seconds, enter q to exit ...".format(iSleepSec),iSleepSec)
+      if isinstance(strResp,str):
+        if len(strResp) > 0:
+            if strResp.lower()[0] == "q":
+              bContinue = False
 
 if __name__ == "__main__":
   main()
