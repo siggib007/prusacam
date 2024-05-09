@@ -93,14 +93,20 @@ def submitPic(strFilePath,strToken,strFingerPrint):
 def main():
   global picam2
 
+  strQuiet = FetchEnv("SILENT")
+  if strQuiet.lower() == "true" or strQuiet.lower() == "yes":
+     bQuiet = True
+  else:
+     bQuiet = False
+
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
   strRealPath = os.path.realpath(sys.argv[0])
-
-  print("This is a script to post pictures to prusa connect. "
-          "This is running under Python Version {}".format(strVersion))
-  print("Running from: {}".format(strRealPath))
-  dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-  print("The time now is {}".format(dtNow))
+  if not bQuiet:
+    print("This is a script to post pictures to prusa connect. "
+            "This is running under Python Version {}".format(strVersion))
+    print("Running from: {}".format(strRealPath))
+    dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
+    print("The time now is {}".format(dtNow))
 
   # fetching secrets in environment
   strToken = FetchEnv("PRUSATOKEN")
@@ -120,17 +126,14 @@ def main():
 
   iInt = FetchEnv("CAMINT")
   if isInt(iInt):
-    print("Interval specification of {} is valid".format(iInt))
+    if not bQuiet:
+      print("Interval specification of {} is valid".format(iInt))
     iInt=int(iInt)
   else:
-    print("Invalid interval specification:'{}' defaulting to 5".format(iInt))
+    if not bQuiet:
+      print("Invalid interval specification:'{}' defaulting to 5".format(iInt))
     iInt = 5
 
-  strQuiet = FetchEnv("SILENT")
-  if strQuiet.lower() == "true" or strQuiet.lower() == "yes":
-     bQuiet = True
-  else:
-     bQuiet = False
 
   picam2 = Picamera2()
   camera_config = picam2.create_still_configuration()
