@@ -1,0 +1,7 @@
+export PRUSATOKEN=from-prusa-connect
+export CAMFP=camera finger print
+export CAMPIC=/tmp/prusaimg.jpg #File name for the picture
+export CAMINT=5  # Number of seconds to to sleep between snapshots, plus 2 seconds
+export SILENT=true # No output when true
+nohup python3 /home/siggib/prusacam/prusacam.py &
+nohup python3 /home/siggib/prusacam/tempmon.py --sleep 120 --silent &
