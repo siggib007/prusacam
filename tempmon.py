@@ -42,11 +42,13 @@ def isInt(CheckValue):
 
 def main():
 
-  objParser = argparse.ArgumentParser(description='Raspberry Pi Monitor')
-  objParser.add_argument('--silent', dest='silent',
-                      action='store_true', help='only output to file, not to screen')
-  objParser.add_argument('--sleep', dest='sleep_time', type=int,
-                      help='Number of seconds to sleep inbetween checks, default is 60')
+  objParser = argparse.ArgumentParser(description="Raspberry Pi Monitor")
+  objParser.add_argument("--silent", dest="silent",
+                      action="store_true", help="only output to file, not to screen")
+  objParser.add_argument("--sleep", dest="sleep_time", type=int,
+                      help="Number of seconds to sleep inbetween checks, default is 60")
+  objParser.add_argument("--filename", dest="file_name", type=str, help="Output file name, "
+                         "defaults to {scriptname}.csv in the script directory")
 
   objArgs = objParser.parse_args()
   if objArgs.sleep_time is not None:
@@ -65,7 +67,10 @@ def main():
     strBaseDir += "/"
   strScriptName = os.path.basename(sys.argv[0])
   iLoc = strScriptName.rfind(".")
-  strFilePath = strBaseDir + strScriptName[:iLoc] + ISO + ".CSV"
+  strFilePath = strBaseDir + strScriptName[:iLoc] + ISO + ".csv"
+  if objArgs.file_name is not None:
+     strFilePath=objArgs.file_name
+
   if not objArgs.silent:
     print("This is a script to raspberrypi cpu stats. "
             "This is running under Python Version {}".format(strVersion))
