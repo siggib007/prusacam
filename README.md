@@ -45,7 +45,7 @@ options:
   -h, --help            show this help message and exit
   --silent              only output to file, not to screen
   --sleep SLEEP_TIME    Number of seconds to sleep inbetween checks, default is 60
-  --filename FILE_NAME  Output file name, defaults to {scriptname}.csv in the script directory
+  --filename FILE_NAME  Output file name, defaults to {scriptname}-iso-date.csv in the script directory
 siggib@raspberrypi3D:~/prusacam $
 ```
 So if filename is specified it needs to be an absolute path. Otherwise if the script full path name is /var/prusacam/tempmon.py, and now is 16 may 2024 13:34:55, the full name for the output file will be /var/prusacam/tempmon-2024-05-16-13-34-55.csv
