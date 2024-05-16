@@ -12,7 +12,6 @@ pip install requests
 # Import libraries
 import os
 import time
-import platform
 import sys
 import requests
 from picamera2 import Picamera2

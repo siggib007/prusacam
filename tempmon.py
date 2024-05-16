@@ -48,7 +48,7 @@ def main():
   objParser.add_argument("--sleep", dest="sleep_time", type=int,
                       help="Number of seconds to sleep inbetween checks, default is 60")
   objParser.add_argument("--filename", dest="file_name", type=str, help="Output file name, "
-                         "defaults to {scriptname}.csv in the script directory")
+                         "defaults to {scriptname}-iso-date.csv in the script directory")
 
   objArgs = objParser.parse_args()
   if objArgs.sleep_time is not None:
