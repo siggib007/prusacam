@@ -36,6 +36,12 @@ iTimeOut = 180  # Max time in seconds to wait for network response
 iMinQuiet = 2  # Minimum time in seconds between API calls
 
 # sub defs
+
+def LogEntry(strMsg):
+	strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
+	objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
+	print(strMsg)
+
 def isInt(CheckValue):
     """
     function to safely check if a value can be interpreded as an int
@@ -91,6 +97,33 @@ def submitPic(strFilePath,strToken,strFingerPrint):
 
 def main():
   global picam2
+  global objLogOut
+
+  ISO = time.strftime("-%Y-%m-%d-%H-%M-%S")
+
+  strBaseDir = os.path.dirname(sys.argv[0])
+  strBaseDir = strBaseDir.replace("\\", "/")
+  strRealPath = os.path.realpath(sys.argv[0])
+  strRealPath = strRealPath.replace("\\","/")
+  if strBaseDir == "":
+    iLoc = strRealPath.rfind("/")
+    strBaseDir = strRealPath[:iLoc]
+  if strBaseDir[-1:] != "/":
+    strBaseDir += "/"
+  strLogDir  = strBaseDir + "Logs/"
+  if strLogDir[-1:] != "/":
+    strLogDir += "/"
+
+  iLoc = sys.argv[0].rfind(".")
+
+  if not os.path.exists (strLogDir) :
+    os.makedirs(strLogDir)
+    print("\nPath '{0}' for log files didn't exists, so I create it!\n".format(strLogDir))
+
+  strScriptName = os.path.basename(sys.argv[0])
+  iLoc = strScriptName.rfind(".")
+  strLogFile = strLogDir + strScriptName[:iLoc] + ISO + ".log"
+  objLogOut = open(strLogFile, "w", 1)
 
   strQuiet = FetchEnv("SILENT")
   if strQuiet.lower() == "true" or strQuiet.lower() == "yes":
