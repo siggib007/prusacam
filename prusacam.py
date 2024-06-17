@@ -38,9 +38,10 @@ iMinQuiet = 2  # Minimum time in seconds between API calls
 # sub defs
 
 def LogEntry(strMsg):
-	strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
-	objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
-	print(strMsg)
+  strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
+  objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
+  if not bQuiet:
+    print(strMsg)
 
 def isInt(CheckValue):
     """
@@ -94,10 +95,10 @@ def submitPic(strFilePath,strToken,strFingerPrint):
   WebRequest = requests.request(strMethod, strURL, data=binBody, timeout=iTimeOut, headers=dictHeader, verify=False)
   return WebRequest
 
-
 def main():
   global picam2
   global objLogOut
+  global bQuiet
 
   ISO = time.strftime("-%Y-%m-%d-%H-%M-%S")
 
@@ -134,36 +135,36 @@ def main():
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
   strRealPath = os.path.realpath(sys.argv[0])
   if not bQuiet:
-    print("This is a script to post pictures to prusa connect. "
+    LogEntry("This is a script to post pictures to prusa connect. "
             "This is running under Python Version {}".format(strVersion))
-    print("Running from: {}".format(strRealPath))
+    LogEntry("Running from: {}".format(strRealPath))
     dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-    print("The time now is {}".format(dtNow))
+    LogEntry("The time now is {}".format(dtNow))
 
   # fetching secrets in environment
   strToken = FetchEnv("PRUSATOKEN")
   if strToken == "":
-    print("No API token, can't post without it.")
+    LogEntry("No API token, can't post without it.")
     sys.exit(9)
 
   strFingerPrint = FetchEnv("CAMFP")
   if strFingerPrint == "":
-    print("No fingerprint, can't post without it.")
+    LogEntry("No fingerprint, can't post without it.")
     sys.exit(9)
 
   strFilePath = FetchEnv("CAMPIC")
   if strFilePath == "":
-    print("No filepath, can't work without it.")
+    LogEntry("No filepath, can't work without it.")
     sys.exit(9)
 
   iInt = FetchEnv("CAMINT")
   if isInt(iInt):
     if not bQuiet:
-      print("Interval specification of {} is valid".format(iInt))
+      LogEntry("Interval specification of {} is valid".format(iInt))
     iInt=int(iInt)
   else:
     if not bQuiet:
-      print("Invalid interval specification:'{}' defaulting to 5".format(iInt))
+      LogEntry("Invalid interval specification:'{}' defaulting to 5".format(iInt))
     iInt = 5
 
 
@@ -176,7 +177,7 @@ def main():
     takePic(strFilePath)
     strResponse = submitPic(strFilePath,strToken,strFingerPrint)
     if not bQuiet:
-       print("picture posted with a response of {}".format(strResponse))
+       LogEntry("picture posted with a response of {}".format(strResponse))
     time.sleep(iInt)
 
 if __name__ == '__main__':
