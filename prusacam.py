@@ -40,6 +40,7 @@ iMinQuiet = 2  # Minimum time in seconds between API calls
 def LogEntry(strMsg):
   strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
   objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
+  objLogOut.flush()
   if not bQuiet:
     print(strMsg)
 
@@ -176,8 +177,7 @@ def main():
   while True:
     takePic(strFilePath)
     strResponse = submitPic(strFilePath,strToken,strFingerPrint)
-    if not bQuiet:
-       LogEntry("picture posted with a response of {}".format(strResponse))
+    LogEntry("picture posted with a response of {}".format(strResponse))
     time.sleep(iInt)
 
 if __name__ == '__main__':
