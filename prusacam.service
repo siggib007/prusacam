@@ -1,3 +1,5 @@
+# Copy this to /etc/systemd/system
+
 [Unit]
 Description=Prusa Camera Service based on Picamera
 After=network.target
