@@ -1,0 +1,13 @@
+[Unit]
+Description=Prusa Camera Service based on Picamera
+After=network.target
+
+[Service]
+ExecStart=/home/siggib/prusacam/startcam.sh
+WorkingDirectory=/home/siggib/prusacam
+User=siggib
+Group=siggib
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
