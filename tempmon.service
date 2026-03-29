@@ -1,0 +1,13 @@
+# Copy this to /etc/systemd/system
+
+[Unit]
+Description=Environment monitoring
+After=network.target
+
+[Service]
+ExecStart=/home/siggib/prusacam/starttemp.sh
+WorkingDirectory=/home/siggib/prusacam
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

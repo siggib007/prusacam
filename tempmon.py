@@ -24,6 +24,7 @@ iLogLevel = 4  # How much logging should be done. Level 10 is debug level, 0 is 
 iTimeOut = 180  # Max time in seconds to wait for network response
 iMinQuiet = 2  # Minimum time in seconds between API calls
 strURL = "https://s2313682.eu-fsn-3.betterstackdata.com/metrics"
+strHBURL = "https://uptime.betterstack.com/api/v1/heartbeat/nFLF1mtJNxFUKRowLML4HJF6"
 
 if sys.version_info[0] > 2:
     import urllib.parse as urlparse
@@ -119,7 +120,7 @@ def Convert2OpenMetricGauge(dictPayloads):
 def SubmitMetric(dictPayload):
   strMethod = "post"
 
-  print("Submitting metric to server:{}".format(json.dumps(dictPayload)))
+  #print("Submitting metric to server:{}".format(json.dumps(dictPayload)))
   dictHeader = {}
   dictHeader["Content-type"] = "application/json"
   dictHeader["Authorization"] = "Bearer " + strToken
@@ -154,11 +155,24 @@ def main():
     strBaseDir = strRealPath[:iLoc]
   if strBaseDir[-1:] != "/":
     strBaseDir += "/"
+  
+  strOutDir  = strBaseDir + "Out/"
+  if strOutDir[-1:] != "/":
+    strOutDir += "/"
+
+  iLoc = sys.argv[0].rfind(".")
+
+  if not os.path.exists (strOutDir) :
+    os.makedirs(strOutDir)
+    print("\nPath '{0}' for output files didn't exists, so I create it!\n".format(strOutDir))
+
   strScriptName = os.path.basename(sys.argv[0])
   iLoc = strScriptName.rfind(".")
-  strFilePath = strBaseDir + strScriptName[:iLoc] + ISO + ".csv"
+  strFilePath = strOutDir + strScriptName[:iLoc] + ISO + ".csv"
   if objArgs.file_name is not None:
      strFilePath=objArgs.file_name
+
+
 
   # fetching secrets in environment
   strToken = FetchEnv("TOKEN")
@@ -205,6 +219,9 @@ def main():
         if len(strResp) > 0:
             if strResp.lower()[0] == "q":
               bContinue = False
+    WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
+
+
 
 if __name__ == "__main__":
   main()

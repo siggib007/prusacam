@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export TOKEN=[From BetterStack Uptime]
+python3 /home/siggib/prusacam/tempmon.py --sleep 55 --silent
+#python3 /home/siggib/prusacam/tempmon.py 

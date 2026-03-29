@@ -3,3 +3,4 @@
 Logs/
 nohup.out
 .vscode/
+*.sh
