@@ -211,6 +211,7 @@ def main():
       print("Response from server: {} {}".format(WebResponse.status_code, WebResponse.text))
     objFile.write(strOut)
     objFile.flush()
+    WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
     if objArgs.silent:
       time.sleep(iSleepSec)
     else:
@@ -219,7 +220,7 @@ def main():
         if len(strResp) > 0:
             if strResp.lower()[0] == "q":
               bContinue = False
-    WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
+    
 
 
 

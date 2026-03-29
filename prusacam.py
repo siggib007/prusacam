@@ -34,6 +34,9 @@ iTotalSleep = 0
 iLogLevel = 4  # How much logging should be done. Level 10 is debug level, 0 is none
 iTimeOut = 180  # Max time in seconds to wait for network response
 iMinQuiet = 2  # Minimum time in seconds between API calls
+strURL = "https://connect.prusa3d.com/c/snapshot"
+strHBURL = "https://uptime.betterstack.com/api/v1/heartbeat/JwJAH7MrRGy1VxkKs15GAJjX"
+
 
 # sub defs
 
@@ -88,7 +91,6 @@ def submitPic(strFilePath,strToken,strFingerPrint):
   binBody = objFileIn.read()
   objFileIn.close()
   strMethod = "put"
-  strURL = "https://connect.prusa3d.com/c/snapshot"
   dictHeader = {}
   dictHeader["Content-type"] = "image/jpeg"
   dictHeader["Fingerprint"] = strFingerPrint
@@ -178,6 +180,7 @@ def main():
     takePic(strFilePath)
     strResponse = submitPic(strFilePath,strToken,strFingerPrint)
     LogEntry("picture posted with a response of {}".format(strResponse))
+    WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
     time.sleep(iInt)
 
 if __name__ == '__main__':
