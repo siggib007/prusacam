@@ -34,23 +34,6 @@ else:
    print("This script is only supported on python 3")
    sys.exit(9)
 
-def isInt(CheckValue):
-    """
-    function to safely check if a value can be interpreded as an int
-    Parameter:
-      Value: A object to be evaluated
-    Returns:
-      Boolean indicating if the object is an integer or not.
-    """
-    if isinstance(CheckValue, (float, int, str)):
-        try:
-            fTemp = int(CheckValue)
-        except ValueError:
-            fTemp = "NULL"
-    else:
-        fTemp = "NULL"
-    return fTemp != "NULL"
-
 def FetchEnv(strVarName):
   """
   Function that fetches the specified content of specified environment variable,
@@ -146,7 +129,7 @@ def main():
   else:
      iSleepSec = 60
 
-  ISO = time.strftime("-%Y-%m-%d-%H-%M-%S")
+  ISO = time.strftime("-%Y-%m-%d")
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
   strRealPath = os.path.realpath(sys.argv[0])
   strBaseDir = os.path.dirname(sys.argv[0])
@@ -155,7 +138,7 @@ def main():
     strBaseDir = strRealPath[:iLoc]
   if strBaseDir[-1:] != "/":
     strBaseDir += "/"
-  
+
   strOutDir  = strBaseDir + "Out/"
   if strOutDir[-1:] != "/":
     strOutDir += "/"
@@ -186,10 +169,10 @@ def main():
             "This is running under Python Version {}".format(strVersion))
     print("Running from: {}".format(strRealPath))
     dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-    print("The time now is {}".format(dtNow))
+    print("Script started at {}".format(dtNow))
     print("Output written to {}".format(strFilePath))
 
-  objFile = open(strFilePath,"a+", encoding="utf8")
+  objFile = open(strFilePath, mode="a", buffering=1, encoding="utf-8")
   objFile.write("Timestamp,Temperature (°C),Clock Speed (MHz),Throttled\n")
   objvcgm = Vcgencmd()
   bContinue = True
@@ -215,12 +198,13 @@ def main():
     if objArgs.silent:
       time.sleep(iSleepSec)
     else:
+      print("Response from heartbeat server: {} {}".format(WebResponse.status_code, WebResponse.text))
       strResp = timed_input("Sleeping for {} seconds, enter q to exit ...".format(iSleepSec),iSleepSec)
       if isinstance(strResp,str):
         if len(strResp) > 0:
             if strResp.lower()[0] == "q":
               bContinue = False
-    
+
 
 
 
