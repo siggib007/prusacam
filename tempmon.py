@@ -34,6 +34,13 @@ else:
    print("This script is only supported on python 3")
    sys.exit(9)
 
+def LogEntry(strMsg):
+  strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
+  objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
+  objLogOut.flush()
+  if not bQuiet:
+    print(strMsg)
+
 def FetchEnv(strVarName):
   """
   Function that fetches the specified content of specified environment variable,
@@ -113,6 +120,7 @@ def SubmitMetric(dictPayload):
 
 def main():
   global strToken
+  global bQuiet
 
 
   objParser = argparse.ArgumentParser(description="Raspberry Pi Monitor")
@@ -149,28 +157,40 @@ def main():
     os.makedirs(strOutDir)
     print("\nPath '{0}' for output files didn't exists, so I create it!\n".format(strOutDir))
 
+ strLogDir  = strBaseDir + "Logs/"
+  if strLogDir[-1:] != "/":
+    strLogDir += "/"
+
+  iLoc = sys.argv[0].rfind(".")
+
+  if not os.path.exists (strLogDir) :
+    os.makedirs(strLogDir)
+    print("\nPath '{0}' for log files didn't exists, so I create it!\n".format(strLogDir))
+
   strScriptName = os.path.basename(sys.argv[0])
   iLoc = strScriptName.rfind(".")
   strFilePath = strOutDir + strScriptName[:iLoc] + ISO + ".csv"
   if objArgs.file_name is not None:
      strFilePath=objArgs.file_name
 
+  strLogFile = strLogDir + strScriptName[:iLoc] + ISO + ".log"
+  objLogOut = open(strLogFile, "a", 1)
 
 
   # fetching secrets in environment
   strToken = FetchEnv("TOKEN")
   if strToken == "":
-    print("No API token, can't post without it.")
+    LogEntry("No API token, can't post without it.")
     sys.exit(9)
 
-
-  if not objArgs.silent:
-    print("This is a script to raspberrypi cpu stats. "
+  bQuiet = objArgs.silent
+  if not bQuiet:
+    LogEntry("This is a script to raspberrypi cpu stats. "
             "This is running under Python Version {}".format(strVersion))
-    print("Running from: {}".format(strRealPath))
+    LogEntry("Running from: {}".format(strRealPath))
     dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-    print("Script started at {}".format(dtNow))
-    print("Output written to {}".format(strFilePath))
+    LogEntry("Script started at {}".format(dtNow))
+    LogEntry("Output written to {}".format(strFilePath))
 
   objFile = open(strFilePath, mode="a", buffering=1, encoding="utf-8")
   objFile.write("Timestamp,Temperature (°C),Clock Speed (MHz),Throttled\n")
@@ -189,16 +209,16 @@ def main():
     WebResponse = SubmitMetric(lstMetrics)
 
     strOut = "{},{},{},{}\n".format(strCurTime,fTempiture,iClockSpeed,bThrottled)
-    if not objArgs.silent:
-      print(strOut, end="")
-      print("Response from server: {} {}".format(WebResponse.status_code, WebResponse.text))
+    if not bQuiet:
+      LogEntry(strOut, end="")
+      LogEntry("Response from server: {} {}".format(WebResponse.status_code, WebResponse.text))
     objFile.write(strOut)
     objFile.flush()
     WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
-    if objArgs.silent:
+    if bQuiet:
       time.sleep(iSleepSec)
     else:
-      print("Response from heartbeat server: {} {}".format(WebResponse.status_code, WebResponse.text))
+      LogEntry("Response from heartbeat server: {} {}".format(WebResponse.status_code, WebResponse.text))
       strResp = timed_input("Sleeping for {} seconds, enter q to exit ...".format(iSleepSec),iSleepSec)
       if isinstance(strResp,str):
         if len(strResp) > 0:
