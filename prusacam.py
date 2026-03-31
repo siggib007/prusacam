@@ -103,7 +103,7 @@ def main():
   global objLogOut
   global bQuiet
 
-  ISO = time.strftime("-%Y-%m-%d-%H-%M-%S")
+  ISO = time.strftime("-%Y-%m-%d")
 
   strBaseDir = os.path.dirname(sys.argv[0])
   strBaseDir = strBaseDir.replace("\\", "/")
@@ -127,7 +127,7 @@ def main():
   strScriptName = os.path.basename(sys.argv[0])
   iLoc = strScriptName.rfind(".")
   strLogFile = strLogDir + strScriptName[:iLoc] + ISO + ".log"
-  objLogOut = open(strLogFile, "w", 1)
+  objLogOut = open(strLogFile, "a", 1)
 
   strQuiet = FetchEnv("SILENT")
   if strQuiet.lower() == "true" or strQuiet.lower() == "yes":
@@ -142,7 +142,7 @@ def main():
             "This is running under Python Version {}".format(strVersion))
     LogEntry("Running from: {}".format(strRealPath))
     dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-    LogEntry("The time now is {}".format(dtNow))
+    LogEntry("The script started at {}".format(dtNow))
 
   # fetching secrets in environment
   strToken = FetchEnv("PRUSATOKEN")
@@ -181,6 +181,7 @@ def main():
     strResponse = submitPic(strFilePath,strToken,strFingerPrint)
     LogEntry("picture posted with a response of {}".format(strResponse))
     WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
+    LogEntry("Heartbeat posted. Response was: {}".format(WebRequest))
     time.sleep(iInt)
 
 if __name__ == '__main__':
