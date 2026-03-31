@@ -74,7 +74,8 @@ def LogEntry(strMsg, iMsgLevel=0, bAbort=False):
   if iVerbose > iMsgLevel:
     strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
     objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
-    print(strMsg)
+    if not bQuiet:
+      print(strMsg)
   else:
     if bAbort:
       strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
@@ -277,12 +278,11 @@ def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strU
 def SubmitMetric(dictPayload):
   strMethod = "post"
 
-  #print("Submitting metric to server:{}".format(json.dumps(dictPayload)))
+  LogEntry("Submitting metric to server:{}".format(json.dumps(dictPayload)),3)
   dictHeader = {}
   dictHeader["Content-type"] = "application/json"
   dictHeader["Authorization"] = "Bearer " + strToken
   WebRequest = MakeAPICall(strURL,dictHeader,strMethod,dictPayload)
-  #WebRequest = requests.request(strMethod, strURL, json=dictPayload, timeout=iTimeOut, headers=dictHeader, verify=False)
 
   return WebRequest
 
@@ -349,6 +349,7 @@ def main():
   strLogFile = strLogDir + strScriptName[:iLoc] + ISO + ".log"
   objLogOut = open(strLogFile, "a", 1)
 
+  bQuiet = objArgs.silent
 
   # fetching secrets in environment
   strToken = FetchEnv("TOKEN")
@@ -367,16 +368,13 @@ def main():
   else:
     LogEntry("No proxy has been configured")
 
-  bQuiet = objArgs.silent
-  if bQuiet:
-    iVerbose = 0
-  else:
-    LogEntry("This is a script to raspberrypi cpu stats. "
-            "This is running under Python Version {}".format(strVersion))
-    LogEntry("Running from: {}".format(strRealPath))
-    dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
-    LogEntry("Script started at {}".format(dtNow))
-    LogEntry("Output written to {}".format(strFilePath))
+
+  LogEntry("This is a script to raspberrypi cpu stats. "
+          "This is running under Python Version {}".format(strVersion))
+  LogEntry("Running from: {}".format(strRealPath))
+  dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
+  LogEntry("Script started at {}".format(dtNow))
+  LogEntry("Output written to {}".format(strFilePath))
 
   objFile = open(strFilePath, mode="a", buffering=1, encoding="utf-8")
   objFile.write("Timestamp,Temperature (°C),Clock Speed (MHz),Throttled\n")
@@ -395,13 +393,12 @@ def main():
     WebResponse = SubmitMetric(lstMetrics)
 
     strOut = "{},{},{},{}".format(strCurTime,fTempiture,iClockSpeed,bThrottled)
-    if not bQuiet:
-      LogEntry(strOut)
-      LogEntry("Response from server: {}".format(WebResponse))
+    LogEntry(strOut)
+    LogEntry("Response from metric server: {}".format(WebResponse))
     objFile.write(strOut+"\n")
     objFile.flush()
     WebRequest = MakeAPICall(strHBURL,{},"HEAD")
-    #WebRequest = requests.request("HEAD", strHBURL, timeout=iTimeOut, verify=False)
+
     if bQuiet:
       time.sleep(iSleepSec)
     else:
