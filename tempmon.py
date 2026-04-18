@@ -415,9 +415,11 @@ def main():
     strOut = "{},{},{},{}".format(strCurTime,fTempiture,iClockSpeed,bThrottled)
     LogEntry(strOut)
     LogEntry("Response from metric server: {}".format(WebResponse))
+
     objFile.write(strOut+"\n")
     objFile.flush()
-    WebRequest = MakeAPICall(strHBURL,{},"HEAD")
+    if WebResponse[0]["Success"] == True:
+      WebRequest = MakeAPICall(strHBURL,{},"HEAD")
 
     if bQuiet:
       time.sleep(iSleepSec)
