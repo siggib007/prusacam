@@ -3,5 +3,6 @@ export CAMFP=camera finger print
 export CAMPIC=/tmp/prusaimg.jpg #File name for the picture
 export CAMINT=5  # Number of seconds to to sleep between snapshots, plus 2 seconds
 export SILENT=true # No output when true
-nohup python3 /home/siggib/prusacam/prusacam.py &
-nohup python3 /home/siggib/prusacam/tempmon.py --sleep 120 --silent &
+export LOGLEVEL=1 # How detailed should the log be, level 1 is minimal, 0 is none, 10 is high debug
+
+python3 /home/siggib/prusacam/tempmon.py --sleep 120 --silent &

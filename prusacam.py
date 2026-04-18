@@ -59,9 +59,9 @@ def CleanExit(strCause,bLog=True):
   if bLog:
     LogEntry("{} is exiting abnormally on {}: {}".format(
         strScriptName, strScriptHost, strCause), 0)
-  if objFile:
-    objFile.close()
-    LogEntry("objFile closed")
+  if objFileIn:
+    objFileIn.close()
+    LogEntry("objFileIn closed")
 
   objLogOut.close()
   #print("objLogOut closed")
@@ -82,6 +82,7 @@ def LogEntry(strMsg, iMsgLevel=0, bAbort=False):
     Nothing
   """
   strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
+  #print("Loggin {}. Log level of this message is {}, current log level is {}".format(strMsg, iMsgLevel, iVerbose))
 
   if iVerbose > iMsgLevel:
     objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
@@ -142,10 +143,10 @@ def submitPic(strFilePath,strToken,strFingerPrint):
   dictHeader["Content-type"] = "image/jpeg"
   dictHeader["Fingerprint"] = strFingerPrint
   dictHeader["token"] = strToken
-  WebRequest = MakeAPICall(strURL, dictHeader, strMethod, dictPayload=binBody)
+  WebRequest = MakeAPICall(strURL, dictHeader, strMethod, objData=binBody)
   return WebRequest
 
-def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strUser="", strPWD=""):
+def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], objData=None, strUser="", strPWD=""):
   """
   Handles the actual communication with the API, has a backoff mechanism
   MinQuiet defines how many seconds must elapse between each API call.
@@ -167,7 +168,6 @@ def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strU
   global tLastCall
   global iTotalSleep
   global iStatusCode
-  global iVerbose
 
   fTemp = time.time()
   fDelta = fTemp - tLastCall
@@ -190,6 +190,9 @@ def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strU
   try:
     if strMethod.lower() == "head":
       WebRequest = requests.request("HEAD", strURL, timeout=iTimeOut, verify=False, proxies=dictProxies, headers=dictHeader)
+    if strMethod.lower() == "put":
+      WebRequest = requests.request("PUT", strURL, timeout=iTimeOut, verify=False, proxies=dictProxies, headers=dictHeader, data=objData)
+
     if strMethod.lower() == "get":
       if strUser != "":
         LogEntry(
@@ -278,6 +281,12 @@ def main():
   global picam2
   global objLogOut
   global bQuiet
+  global iVerbose
+  global objFileIn
+  global dictProxies
+  dictProxies = {}
+
+  objFileIn = None
 
   ISO = time.strftime("-%Y-%m-%d")
 
@@ -312,14 +321,14 @@ def main():
      bQuiet = False
 
   strLogLevel = FetchEnv("LOGLEVEL")
+  if strLogLevel == "":
+    strLogLevel = "1"
   if isInt(strLogLevel):
+    iVerbose=int(strLogLevel)
     LogEntry("Log level specification of {} is valid".format(strLogLevel))
-    iLogLevel=int(strLogLevel)
   else:
+    iVerbose = 1
     LogEntry("Invalid log level specification:'{}' defaulting to 1".format(strLogLevel))
-    iLogLevel = 1
-  if bQuiet:
-    iLogLevel = 0
 
 
   strVersion = "{0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2])
@@ -350,6 +359,18 @@ def main():
   else:
     LogEntry("Invalid interval specification:'{}' defaulting to 5".format(iInt))
     iInt = 5
+
+
+  strProxy = FetchEnv("PROXY")
+  if strProxy == "":
+    strProxy = None
+  if strProxy is not None:
+    dictProxies["http"] = strProxy
+    dictProxies["https"] = strProxy
+    LogEntry("Proxy has been configured for {}".format(strProxy))
+  else:
+    LogEntry("No proxy has been configured")
+
 
   picam2 = Picamera2()
   camera_config = picam2.create_still_configuration()

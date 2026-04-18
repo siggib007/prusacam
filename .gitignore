@@ -4,3 +4,4 @@ Logs/
 nohup.out
 .vscode/
 *.sh
+startcam.sh
