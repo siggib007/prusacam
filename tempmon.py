@@ -18,6 +18,7 @@ import argparse
 import inputimeout
 import requests
 import json
+import sentry_sdk
 
 
 
@@ -38,7 +39,14 @@ else:
    print("This script is only supported on python 3")
    sys.exit(9)
 
-def CleanExit(strCause):
+sentry_sdk.init(
+    dsn="https://ZyeMfvXx4kDhZsFuKf5Qwcg5@s2379987.eu-fsn-3.betterstackdata.com/1",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+)
+
+def CleanExit(strCause,bLog=True):
   """
   Handles cleaning things up before unexpected exit in case of an error.
   Things such as closing down open file handles, open database connections, etc.
@@ -48,15 +56,17 @@ def CleanExit(strCause):
   Returns:
     nothing as it terminates the script
   """
-  LogEntry("{} is exiting abnormally on {}: {}".format(
-    strScriptName, strScriptHost, strCause), 0)
-  if objFileIn:
-    objFileIn.close()
-    LogEntry("objFileIn closed")
+  if bLog:
+    LogEntry("{} is exiting abnormally on {}: {}".format(
+        strScriptName, strScriptHost, strCause), 0)
+  if objFile:
+    objFile.close()
+    LogEntry("objFile closed")
 
   objLogOut.close()
-  print("objLogOut closed")
+  #print("objLogOut closed")
 
+  sentry_sdk.capture_exception(strCause)
   sys.exit(9)
 
 def LogEntry(strMsg, iMsgLevel=0, bAbort=False):
@@ -71,18 +81,18 @@ def LogEntry(strMsg, iMsgLevel=0, bAbort=False):
   Returns:
     Nothing
   """
+  strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
+
   if iVerbose > iMsgLevel:
-    strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
     objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
     if not bQuiet:
       print(strMsg)
   else:
     if bAbort:
-      strTimeStamp = time.strftime("%m-%d-%Y %H:%M:%S")
       objLogOut.write("{0} : {1}\n".format(strTimeStamp, strMsg))
 
   if bAbort:
-    CleanExit("")
+    CleanExit(strMsg,bLog=False)
 
 def FetchEnv(strVarName):
   """
@@ -237,6 +247,7 @@ def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strU
     dictReturn["url"] = strURL
     dictReturn["condition"] = "Issue with API call"
     dictReturn["errormsg"] = err
+    sentry_sdk.capture_exception(err)
     return ({"Success": False}, [dictReturn])
 
   if isinstance(WebRequest, requests.models.Response) == False:
@@ -249,7 +260,7 @@ def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strU
   iStatusCode = int(WebRequest.status_code)
 
   if not 200 <= iStatusCode <= 299:
-    print("call resulted in status code {}".format(WebRequest.status_code))
+    #print("call resulted in status code {}".format(WebRequest.status_code))
     strErrCode += str(iStatusCode)
     strErrText += WebRequest.text
     LogEntry("HTTP Error: {}".format(iStatusCode), 3)
@@ -273,6 +284,7 @@ def MakeAPICall(strURL, dictHeader, strMethod, dictPayload="", objFiles=[], strU
       dictReturn["errormsg"] = err
       dictReturn["errorDetail"] = "Here are the first 199 character of the response: {}".format(
           WebRequest.text[:199])
+      sentry_sdk.capture_exception(err)
       return ({"Success": False}, [dictReturn])
 
 def SubmitMetric(dictPayload):
@@ -292,6 +304,9 @@ def main():
   global objLogOut
   global iVerbose
   global dictProxies
+  global objFile
+
+  objFile = None
 
   objParser = argparse.ArgumentParser(description="Raspberry Pi Monitor")
   objParser.add_argument("--silent", dest="silent",
@@ -354,8 +369,7 @@ def main():
   # fetching secrets in environment
   strToken = FetchEnv("TOKEN")
   if strToken == "":
-    LogEntry("No API token, can't post without it.")
-    sys.exit(9)
+    LogEntry("No API token, can't post without it.", 0, True)
   dictProxies = {}
   if FetchEnv("PROXY") is not None:
     strProxy = os.getenv("PROXY")
@@ -408,6 +422,12 @@ def main():
         if len(strResp) > 0:
             if strResp.lower()[0] == "q":
               bContinue = False
+  objFile.close()
+  LogEntry("objFile closed")
+  dtNow = time.strftime("%A %d %B %Y %H:%M:%S %Z")
+  LogEntry("Script ended at {}".format(dtNow))
+  objLogOut.close()
+
 
 
 
