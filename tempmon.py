@@ -66,7 +66,7 @@ def CleanExit(strCause,bLog=True):
   objLogOut.close()
   #print("objLogOut closed")
 
-  sentry_sdk.capture_exception(strCause)
+  sentry_sdk.capture_exception(Exception(strCause))
   sys.exit(9)
 
 def LogEntry(strMsg, iMsgLevel=0, bAbort=False):
