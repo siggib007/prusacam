@@ -35,9 +35,10 @@ iTimeOut = 180  # Max time in seconds to wait for network response
 iMinQuiet = 2  # Minimum time in seconds between API calls
 strURL = "https://connect.prusa3d.com/c/snapshot"
 strHBURL = "https://uptime.betterstack.com/api/v1/heartbeat/JwJAH7MrRGy1VxkKs15GAJjX"
+strSentryURL = "https://ZyeMfvXx4kDhZsFuKf5Qwcg5@s2379987.eu-fsn-3.betterstackdata.com/1"
 
 sentry_sdk.init(
-    dsn="https://ZyeMfvXx4kDhZsFuKf5Qwcg5@s2379987.eu-fsn-3.betterstackdata.com/1",
+    dsn=strSentryURL,
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     traces_sample_rate=1.0,

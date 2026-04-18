@@ -32,6 +32,15 @@ iTimeOut = 180  # Max time in seconds to wait for network response
 iMinQuiet = 2  # Minimum time in seconds between API calls
 strURL = "https://s2313682.eu-fsn-3.betterstackdata.com/metrics"
 strHBURL = "https://uptime.betterstack.com/api/v1/heartbeat/nFLF1mtJNxFUKRowLML4HJF6"
+strSentryURL = "https://ZyeMfvXx4kDhZsFuKf5Qwcg5@s2379987.eu-fsn-3.betterstackdata.com/1"
+
+sentry_sdk.init(
+    dsn=strSentryURL,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+)
+
 
 if sys.version_info[0] > 2:
     import urllib.parse as urlparse
@@ -41,12 +50,6 @@ else:
    print("This script is only supported on python 3")
    sys.exit(9)
 
-sentry_sdk.init(
-    dsn="https://ZyeMfvXx4kDhZsFuKf5Qwcg5@s2379987.eu-fsn-3.betterstackdata.com/1",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    traces_sample_rate=1.0,
-)
 
 def CleanExit(strCause,bLog=True):
   """
