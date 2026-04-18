@@ -380,12 +380,12 @@ def main():
 
   while True:
     takePic(strFilePath)
-    WebRequest = submitPic(strFilePath,strToken,strFingerPrint)
-    LogEntry("picture posted with a response of {}".format(WebRequest))
+    WebResponse = submitPic(strFilePath,strToken,strFingerPrint)
+    LogEntry("picture posted with a response of {}".format(WebResponse))
     if WebResponse[0]["Success"] == True:
-      WebRequest = MakeAPICall(strHBURL,{},"HEAD")
+      WebResponse = MakeAPICall(strHBURL,{},"HEAD")
 
-    LogEntry("Heartbeat posted. Response was: {}".format(WebRequest))
+    LogEntry("Heartbeat posted. Response was: {}".format(WebResponse))
     time.sleep(iInt)
 
 

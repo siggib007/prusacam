@@ -420,11 +420,11 @@ def main():
     objFile.flush()
     if WebResponse[0]["Success"] == True:
       WebRequest = MakeAPICall(strHBURL,{},"HEAD")
+      LogEntry("Response from heartbeat server: {}".format(WebResponse))
 
     if bQuiet:
       time.sleep(iSleepSec)
     else:
-      LogEntry("Response from heartbeat server: {}".format(WebResponse))
       strResp = timed_input("Sleeping for {} seconds, enter q to exit ...".format(iSleepSec),iSleepSec)
       if isinstance(strResp,str):
         if len(strResp) > 0:
