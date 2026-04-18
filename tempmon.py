@@ -7,6 +7,8 @@ Copyright 2024 Siggi Bjarnason
 
 Following packages need to be installed
 pip install vcgencmd
+pip install sentry_sdk
+pip install inputimeout
 
 '''
 # Import libraries
@@ -53,6 +55,7 @@ def CleanExit(strCause,bLog=True):
   Logs any cause given, closes everything down then terminates the script.
   Parameters:
     Cause: simple string indicating cause of the termination, can be blank
+    bLog: Optional, defaults to true. Boolean indicating if the cause should be logged before exiting.
   Returns:
     nothing as it terminates the script
   """
@@ -75,7 +78,7 @@ def LogEntry(strMsg, iMsgLevel=0, bAbort=False):
   This could be a simple text log file, a database connection, etc.
   Needs to be customized as needed
   Parameters:
-    Message: Simple string with the event to be logged
+    strMsg: Simple string with the event to be logged
     iMsgLevel: How detailed is this message, debug level or general. Will be matched against Loglevel
     Abort: Optional, defaults to false. A boolean to indicate if CleanExit should be called.
   Returns:
